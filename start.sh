@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Disable Baxter's sonar
-rostopic pub /robot/sonar/headonar/set_sonars_enabled std_msgs/UInt16 0 >/dev/null 2>/dev/null &
+rostopic pub /robot/sonar/head_sonar/set_sonars_enabled std_msgs/UInt16 0x0000 -r 1 &
 
 # Path planning setup
 echo "\nEnable Baxter\n\n"

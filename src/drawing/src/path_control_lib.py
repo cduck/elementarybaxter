@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import sys, copy
 import numpy as np
 import rospy
@@ -14,10 +15,10 @@ right_arm = None
 left_gripper = None
 right_gripper = None
 
-left_arm_default_state  = ((0.45, 0.45, 1.3),
-  (.01, .17, .64, .75))
-#left_arm_default_state  = ((0.2, 0.7, 0.4),
-#  (0, 1, 0, 1))
+#left_arm_default_state  = ((0.45, 0.45, 1.3),
+#  (.01, .17, .64, .75))
+left_arm_default_state  = ((0.2, 0.7, 0.4),
+  (0, 1, 0, 1))
 right_arm_default_state = ((0.2, -0.7, 0.4),
   (0, 1, 0, 1))
 
@@ -31,26 +32,23 @@ def init():
   #Initialize moveit_commander
   moveit_commander.roscpp_initialize(sys.argv)
 
-  #Start a node
-  rospy.init_node('moveit_node')
-
   #Initialize both arms
   robot = moveit_commander.RobotCommander()
   scene = moveit_commander.PlanningSceneInterface()
   left_arm = moveit_commander.MoveGroupCommander('left_arm')
   right_arm = moveit_commander.MoveGroupCommander('right_arm')
   left_arm.set_planner_id('RRTConnectkConfigDefault')
-  left_arm.set_planning_time(5)
+  left_arm.set_planning_time(20)
   right_arm.set_planner_id('RRTConnectkConfigDefault')
-  right_arm.set_planning_time(5)
+  right_arm.set_planning_time(20)
 
 def planMoveToPose(pos=None, orientation=None, arm=None):
   arm = arm or left_arm
   if arm is left_arm:
-    pos = pos or left_arm_default_state[0]
+    pos = left_arm_default_state[0] if pos is None else pos
     orientation = orientation or left_arm_default_state[1]
   if arm is right_arm:
-    pos = pos or right_arm_default_state[0]
+    pos = right_arm_default_state[0] if pos is None else pos
     orientation = orientation or right_arm_default_state[1]
 
   #First goal pose ------------------------------------------------------
@@ -129,14 +127,14 @@ def planMoveToPosHoldOrientation(pos=None, orientation=None, arm=None):
   #Plan a path
   return (arm, arm.plan())
 
-def planPath(positions, orientation=None, arm=None, holdOrientation=False, step=0.01, threshold=0.0):
+def planPath(positions, orientation=None, arm=None, holdOrientation=False, step=0.01, threshold=1000):
   arm = arm or left_arm
   if arm is left_arm:
-    positions = positions or (left_arm_default_state[0],)
-    orientation = orientation or left_arm_default_state[1]
+    positions = (left_arm_default_state[0],) if positions is None else positions
+    orientation = left_arm_default_state[1] if orientation is None else orientation
   if arm is right_arm:
-    positions = positions or (right_arm_default_state[0],)
-    orientation = orientation or right_arm_default_state[1]
+    positions = (right_arm_default_state[0],) if positions is None else positions
+    orientation = right_arm_default_state[1] if orientation is None else orientation
 
   # Compute path
   waypoints = []
@@ -212,7 +210,7 @@ def executePlan(plan):
 
 
 def main():
-  rospy.sleep(1.0)
+  pass
 
 
 if __name__ == '__main__':

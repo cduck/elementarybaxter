@@ -43,6 +43,8 @@ def callback(data):
   pub.publish(msg)
 
 def callback2(data):
+  pc.init()
+
   print 'Moving arm to position:', data.position
   pos = data.position
   pc.executePlan(pc.planMoveToPose(pos,orientation))
@@ -57,6 +59,7 @@ def drawString(str, size=None):
   print waypoints
 
   if len(waypoints) > 0:
+    pc.init()
     pc.executePlan(pc.planMoveToPose(waypoints[0],orientation))
     pc.executePlan(pc.planPath(waypoints, orientation, holdOrientation=True))
 
@@ -66,12 +69,15 @@ def main():
 
   rospy.init_node('draw_node')
 
-  pc.init()
+  #pc.init()
 
   pub = rospy.Publisher('draw_response', DrawResponse)
 
   rospy.Subscriber('draw_command', DrawCommand, callback)
   rospy.Subscriber('draw_position', DrawPosition, callback2)
+
+  print "Ready."
+
   rospy.spin()
 
 

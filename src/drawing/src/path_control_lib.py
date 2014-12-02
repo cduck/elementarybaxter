@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, copy
+import sys, copy, gc
 import numpy as np
 import rospy
 import moveit_commander
@@ -22,6 +22,7 @@ left_arm_default_state  = ((0.2, 0.7, 0.4),
 right_arm_default_state = ((0.2, -0.7, 0.4),
   (0, 1, 0, 1))
 
+# Init or reinit
 def init():
   global robot
   global scene
@@ -29,6 +30,15 @@ def init():
   global right_arm
   global left_gripper
   global right_gripper
+
+  robot = None
+  scene = None
+  left_arm = None
+  right_arm = None
+  left_gripper = None
+  right_gripper = None
+  gc.collect()
+
   #Initialize moveit_commander
   moveit_commander.roscpp_initialize(sys.argv)
 

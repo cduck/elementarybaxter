@@ -59,7 +59,7 @@ def planMoveToPose(pos=None, orientation=None, arm=None):
   goal_1.pose.position.x = pos[0]
   goal_1.pose.position.y = pos[1]
   goal_1.pose.position.z = pos[2]
-  
+
   #Orientation as a quaternion
   orientation = orientation/np.linalg.norm(orientation)
   goal_1.pose.orientation.x = orientation[0]
@@ -93,7 +93,7 @@ def planMoveToPosHoldOrientation(pos=None, orientation=None, arm=None):
   goal_2.pose.position.x = pos[0]
   goal_2.pose.position.y = pos[1]
   goal_2.pose.position.z = pos[2]
-  
+
   #Orientation as a quaternion
   orientation = orientation/np.linalg.norm(orientation)
   goal_2.pose.orientation.x = orientation[0]

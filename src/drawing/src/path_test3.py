@@ -9,7 +9,7 @@ from drawing.msg import *
 
 
 useGripper = False
-origin = (.4,.07,-.19)
+origin = (.4,-.1,-.145)
 ihat = (0,1,0)
 jhat = (-1,0,0)
 khat = (0,0,1)

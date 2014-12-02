@@ -18,7 +18,7 @@ def drawString(str, size=None):
   waypoints = pcreate.strToWaypoints(str,trans,size)
   print 'Waypoints:'
   print waypoints
-  
+
   if len(waypoints) > 0:
     pc.executePlan(pc.planMoveToPose(waypoints[0],orientation))
     pc.executePlan(pc.planPath(waypoints, orientation, holdOrientation=True))
@@ -55,7 +55,7 @@ def drawString(str, size=None):
   waypoints = pcreate.strToWaypoints(str,trans,size=size)
   print 'Waypoints:'
   print waypoints
-  
+
   if len(waypoints) > 0:
     pc.executePlan(pc.planMoveToPose(waypoints[0],orientation))
     pc.executePlan(pc.planPath(waypoints, orientation, holdOrientation=True))

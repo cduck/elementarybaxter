@@ -50,13 +50,13 @@ symbolLib = {
   '5': (((0,.15),(.2,0),(.8,0),(1,.15),(1,.35),(.8,.5),(.2,.5),(0,.35),(0,1),(1,1)), seqOnce, capScale),
   '6': (((0,.5),(.8,.5),(1,.35),(1,.15),(.8,0),(.2,0),(0,.15),(0,.5),(.15,.85),(.7,1)), seqOnce, capScale),
   '7': (((.2,0),(1,1),(0,1)), seqOnce, capScale),
-  '8': (((.5,.5),(0,.35),(1,.65),(1,.85),(.8,1),(.2,1),(0,.85),(0,.65),(1,.35),(1,.15),(.8,0),(.2,0)), seqLoop, capScale),
+  '8': (((.5,.5),(1,.65),(1,.85),(.8,1),(.2,1),(0,.85),(0,.65),(1,.35),(1,.15),(.8,0),(.2,0),(0,.15),(0,.35)), seqLoop, capScale),
   '9': (((.3,0),(.85,.15),(1,.5),(1,.85),(.8,1),(.2,1),(0,.85),(0,.65),(.2,.5),(1,.5)), seqOnce, capScale),
   ' ': ((),                                            seqOnce, capScale),
   '.': (((.5,0),),                                     seqOnce, skinnyScale),
   ',': (((0,-0.2),(1,.2)),                             seqOnce, skinnyScale),
   '!': (((.5,0),None,(.5,.25),(.5,1)),                 seqOnce, skinnyScale),
-  '?': (((.2,.5),(0,.65),(0,.85),(.2,1),(.8,1),(1,.85),(1,.65),(.5,.4),(.5,.25),None,(.5,0)), seqOnce, capScale),
+  '?': (((0,.65),(0,.85),(.2,1),(.8,1),(1,.85),(1,.65),(.5,.4),(.5,.25),None,(.5,0)), seqOnce, capScale),
   '=': (((0,.4),(1,.4),None,(0,.6),(1,.6)),            seqOnce, capScale),
   '+': (((0,.5),(1,.5),None,(.5,.83),(.5,.17)),        seqOnce, capScale),
   '-': (((0,.5),(1,.5)),                               seqOnce, capScale),
@@ -69,7 +69,7 @@ symbolLib = {
   '$': (((0,.15),(.2,0),(.8,0),(1,.15),(1,.35),(.8,.5),(.2,.5),(0,.65),(0,.85),(.2,1),(.8,1),(1,.85),None,(.5,1.2),(.5,-.2)), seqOnce, capScale),
   '%': (((0,0),(1,1),None,(.25,.75),None,(.75,.25)),   seqOnce, thinScale),
   '^': (((0,.6),(.5,1),(1,.6)),                        seqOnce, capScale),
-  '&': (((1,.4),(.5,0),(0,.5),(1,.75),(.5,1),(0,.7),(1,0)), seqOnce, capScale),
+  '&': (((1,.4),(.5,0),(0,.4),(1,.75),(.5,1),(0,.7),(1,0)), seqOnce, capScale),
   '(': (((1,0),(0,.25),(0,.75),(1,1)),                 seqOnce, thinScale),
   ')': (((0,0),(1,.25),(1,.75),(1,1)),                 seqOnce, thinScale),
   '_': (((0,0),(1,0)),                                 seqOnce, capScale),
@@ -103,7 +103,7 @@ def strToWaypoints(str, trans=None, clearance=zClearance, size=None):
   y = -vHeight
   lastWasUp = True
   specialChar = False
-  
+
   for c in str:
     if c == '\\' and not specialChar:
       specialChar = True
@@ -153,7 +153,7 @@ def strToWaypoints(str, trans=None, clearance=zClearance, size=None):
 
   if trans is None: return np.array(wps)
   else: return transformWaypoints(wps, trans)
-  
+
 
 
 def main():

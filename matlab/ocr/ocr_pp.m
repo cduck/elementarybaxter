@@ -1,0 +1,202 @@
+%% OCR Pre-Processing.
+
+% Clear trash data.
+clear all; close all;
+
+% Read image and convert to double.
+I = double(imread('in.png'))./255;
+
+% Apply gaussian filtering.
+G = fspecial('gaussian',[5 5],2);
+Ig = imfilter(I,G,'same');
+
+% Convert to grayscale.
+Ig_gray = rgb2gray(Ig);
+
+% Use 1D 2-means to filter boundary noise.
+idx = kmeans(Ig_gray(:),2,'start','uniform');
+BW = zeros(size(Ig_gray));
+BW(:) = idx == 1;
+r = size(BW,1); c = size(BW,2);
+if ~round(mean(mean(BW(0.2*r:0.8*r,0.2*c:0.8*c))))
+    BW = ~BW;
+end
+I_k = Ig;
+%BW(0.2*r:0.8*r,0.2*c:0.8*c) = ones(0.8*r-0.2*r+1,0.8*c-0.2*c+1);
+for i=1:3
+    I_k(:,:,i) = Ig(:,:,i).*BW;
+end
+BW = bwareaopen(BW,20*20);
+
+% Convert image to HSV then extract H.
+I_hsv = rgb2hsv(I_k);
+I_h = I_hsv(:,:,1);
+
+% Shift HSV scale (by index of yellow) to help make red detection easier.
+I_h = mod(I_h+(50/360),1);
+
+% Use 1D 2-means again to filter noise.
+idxf = kmeans(I_h(:),3,'start','uniform');
+BWf = zeros(size(Ig_gray));
+BWf(:) = idxf == 1;
+if BWf(1,1) ~= ~BW(1,1)
+    BWf(:) = idxf == 2;
+    if BWf(1,1) ~= ~BW(1,1)
+        BWf(:) = idxf == 3;
+    end
+end
+BWf = bwareaopen(BWf,10*10);
+%BWf = BWf(0.2*r:0.8*r,0.1*c:0.9*c);
+top = 1;
+tmp = inf;
+bottom = r;
+left = 1;
+right = c;
+for i=1:0.5*r
+    if mean(BWf(i,:)) < 0.3
+        top = i;
+        break;
+    end
+end
+for i=1:0.5*r
+    if mean(BWf(r-i,:)) < 0.3
+        bottom = r-i;
+        break;
+    end
+end
+for i=1:0.5*c
+    if mean(BWf(:,i)) < 0.2
+        left = i;
+        break;
+    end
+end
+for i=1:0.5*c
+    if mean(BWf(:,c-i)) < 0.3
+        right = c-i;
+        break;
+    end
+end
+BWf = BWf(top:bottom,left:right);
+BWf = bwareaopen(BWf,10*10);
+figure; imshow(~BWf);
+
+top_ind = 1;
+while true
+    if mean(BWf(top_ind,:)) ~= 0
+        top_ind = top_ind+1;
+    else
+        break;
+    end
+end
+%top_ind
+top = top+top_ind;
+BWf = BWf(top_ind:end,:);
+
+BWf = double(~BWf)*255;
+imwrite(cat(3,BWf,BWf,BWf),'./out.png');
+imwrite(cat(3,BWf,BWf,BWf),'./dependency/out.png');
+
+rect_crop = [0 0 0 0]; % top, bottom, left, right 
+BW = double(BW);
+for i=1:0.5*r
+    if mean(BW(i,:)) > 0.5
+        rect_crop(1) = i;
+        break;
+    end
+end
+for i=1:0.5*r
+    if mean(BW(r-i,:)) > 0.5
+        rect_crop(2) = r-i;
+        break;
+    end
+end
+for i=1:0.5*c
+    if mean(BW(:,i)) > 0.5
+        rect_crop(3) = i;
+        break;
+    end
+end
+for i=1:0.5*c
+    if mean(BW(:,c-i)) > 0.5
+        rect_crop(4) = c-i;
+        break;
+    end
+end
+BW = BW(rect_crop(1):rect_crop(2),rect_crop(3):rect_crop(4));
+
+cd dependency
+[status,cmdout] = system('tesseract out.png out2 -psm 6 config1.txt');
+cd ..
+
+fid = fopen('./dependency/out2.box');
+tline = 0;
+text = '';
+char_arr = [];
+while 1
+    tline = fgetl(fid);
+    if tline == -1
+        break;
+    end
+    %fprintf(strcat(tline,'\n'));
+    tline2 = strsplit(tline,' ');
+    text = strcat(text,tline2(1));
+    char_arr = cat(1,char_arr,tline2(2:5));
+end
+fclose(fid);
+M = zeros(size(char_arr));
+for i=1:size(char_arr,1)
+    for j=1:size(char_arr,2)
+        M(i,j) = str2num(char_arr{(j-1)*size(char_arr,1)+i});
+    end
+end
+%figure; imshow(BWf); hold on; scatter(M(:,3),size(BWf,1)-M(:,2)); scatter(M(:,1),size(BWf,1)-M(:,4)); hold off;
+rightmost_x = max(cat(1,M(:,3),M(:,1)));
+top_y = min(cat(1,size(BWf,1)-M(:,4),size(BWf,1)-M(:,2)));
+bottom_y = max(cat(1,size(BWf,1)-M(:,4),size(BWf,1)-M(:,2)));
+hold on; scatter(rightmost_x,top_y); scatter(rightmost_x,bottom_y); hold off;
+figure; imshow(Ig); hold on; scatter(rightmost_x+left,top_y+top); scatter(rightmost_x+left,bottom_y+top); hold off;
+figure; imshow(BWf); hold on; scatter(M(:,3),size(BWf,1)-M(:,2)); scatter(M(:,1),size(BWf,1)-M(:,4)); hold off;
+
+relative_rightmost_x = rightmost_x+left-rect_crop(3);
+relative_top_y = top_y+top-rect_crop(1);
+relative_bottom_y = bottom_y+top-rect_crop(1);
+% figure; imshow(BW); hold on; scatter(relative_rightmost_x,relative_top_y); scatter(relative_rightmost_x,relative_bottom_y); hold off;
+relative_rightmost_x = relative_rightmost_x/size(BW,2);
+relative_top_y = relative_top_y/size(BW,1);
+relative_bottom_y = relative_bottom_y/size(BW,1);
+
+fid2 = fopen('out.txt','w');
+fprintf(fid2,'%s\n%.4f %.4f %.4f %.4f',text{1},relative_rightmost_x,relative_top_y,relative_rightmost_x,relative_bottom_y);
+fclose(fid2);
+
+fprintf('Output:\n%s\n%.4f %.4f %.4f %.4f\n',text{1},relative_rightmost_x,relative_top_y,relative_rightmost_x,relative_bottom_y);
+% 
+% % fprintf(tline);
+% % idx = regexp(tline,' [\d]+');
+% % idx_end = regexp(tline,'[\d]">');
+% % bbox = tline((idx(1)+1):idx_end);
+% % %bbox = strsplit(bbox,' ');
+% % bbox = str2num(bbox);
+% % bbox
+% % figure; imshow(BWf); hold on; scatter([bbox(1);bbox(3)],[bbox(2);bbox(4)]); hold off;
+% % bbox(1) = bbox(1)+left;
+% % bbox(2) = bbox(2)+top;
+% % bbox(3) = bbox(3)+left;
+% % bbox(4) = bbox(4)+top;
+% % bbox
+% % figure; imshow(Ig); hold on; scatter([bbox(1);bbox(3)],[bbox(2);bbox(4)]); hold off;
+% 
+% 
+% % figure(); imshow(I);
+% % figure(); imshow(Ig_gray);
+% % figure(); imshow(BW);
+% % figure(); imshow(I_k);
+% % figure(); imshow(I_h);
+% % figure(); imshow(BWf);
+% % 
+% % pause(3);
+% 
+% % % figure(); imshow(BWf);
+% % cd dependency
+% % OCR
+% % cd ..

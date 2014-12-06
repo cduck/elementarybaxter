@@ -1,0 +1,2 @@
+tessedit_create_boxfile 1
+tessedit_char_whitelist 0123456789-+=*/

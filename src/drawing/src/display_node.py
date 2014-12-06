@@ -17,7 +17,7 @@ def main():
 
   pub = rospy.Publisher('/robot/xdisplay', Image)
 
-  rospy.Subscriber('/cameras/left_hand_camera/image', Image, callback)
+  rospy.Subscriber('/cameras/right_hand_camera/image', Image, callback)
   rospy.spin()
 
 

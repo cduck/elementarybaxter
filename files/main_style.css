@@ -18,7 +18,7 @@
  .container{ width:960px; margin:0 auto; }
  blockquote { font-style:italic; border-left:4px solid #8eaf66; margin:10px 0 10px 0; padding-left:20px; line-height:1.5; color:#999; }
  #icontent{ border:none !important; }
- #header-wrap, #topnav-wrap, #banner-wrap, #main-wrap, #footer-wrap{ width:100%; min-width:960px; }
+ #header-wrap, #topnav-wrap, #banner-wrap, #main-wrap, #footer-wrap, #main2-wrap { width:100%; min-width:960px; }
  #header-wrap{ background:#fff; }
  #header { border-collapse: collapse; border-spacing: 0; width:100%; height:120px; margin:0; }
  #header table { border-collapse: collapse; border-spacing: 0; }
